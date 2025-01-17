@@ -80,11 +80,11 @@ const Homepage = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F7E8CC',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F7E8CC',
   },
   header: {
     flexDirection: 'row',
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
-    backgroundColor: '#fff',
+    backgroundColor: '#F7E8CC',
   },
   menuButton: {
     padding: 8,
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    backgroundColor: '#fff',
+    backgroundColor: '#F6C8C8',
     width: '70%',
     maxWidth: 300,
     height: '100%',
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#fff',
   },
   menuItemText: {
     marginLeft: 16,

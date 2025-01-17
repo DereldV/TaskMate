@@ -78,11 +78,11 @@ const Account = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F7E8CC',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F7E8CC',
   },
   header: {
     flexDirection: 'row',
@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+    backgroundColor: '#F7E8CC',
   },
   backButton: {
     padding: 8,
@@ -139,7 +140,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   statBox: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#F6C8C8',
     borderRadius: 15,
     padding: 20,
     width: '45%',
@@ -157,13 +158,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 8,
+    color: '#333',
   },
   statLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#333',
   },
   menuContainer: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FAFAFA',
     margin: 20,
     borderRadius: 15,
     elevation: 2,
@@ -180,7 +182,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#fff',
   },
   menuItemText: {
     flex: 1,
