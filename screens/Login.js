@@ -1,24 +1,63 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { findUserByUsername, getAllUsers } from '../utils/database';
 
-const LoginPage = () => {
+const LoginPage = ({ navigation }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      
+
+      const user = await findUserByUsername(username);
+      if (user && user.password === password) {
+        navigation.navigate('Homepage', {
+          firstName: user.firstName,
+          lastName: user.lastName
+        });
+      } else {
+        Alert.alert('Error', 'Invalid username or password');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Image source={{ uri: 'https://via.placeholder.com/150' }} style={styles.logo} />
       <View style={styles.inputContainer}>
-        <TextInput placeholder="Username/Email" style={styles.input} />
+        <TextInput 
+          placeholder="Username" 
+          style={styles.input}
+          value={username}
+          onChangeText={setUsername}
+        />
       </View>
       <View style={styles.inputContainer}>
-        <TextInput placeholder="Password" secureTextEntry style={styles.input} />
+        <TextInput 
+          placeholder="Password" 
+          secureTextEntry 
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+        />
       </View>
       <TouchableOpacity>
         <Text style={styles.forgotPassword}>Forgot Password?</Text>
       </TouchableOpacity>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={handleLogin}
+        >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={() => navigation.navigate('Signup')}
+        >
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
       </View>
