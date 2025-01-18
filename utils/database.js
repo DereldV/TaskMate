@@ -82,4 +82,18 @@ export const getAllUsers = async () => {
     console.error('Get all users error:', error);
     throw error;
   }
+};
+
+export const updateUserProfile = async (username, firstName, lastName) => {
+  try {
+    const _db = await db;
+    await _db.runAsync(
+      'UPDATE users SET firstName = ?, lastName = ? WHERE username = ?',
+      [firstName, lastName, username]
+    );
+    console.log('Profile updated successfully for user:', username);
+  } catch (error) {
+    console.error('Update profile error:', error);
+    throw error;
+  }
 }; 

@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 const Homepage = ({ route, navigation }) => {
   const [menuVisible, setMenuVisible] = useState(false);
-  const { firstName, lastName } = route.params;
+  const { firstName, lastName, username, email } = route.params;
 
   const menuItems = [
     { title: 'Task', icon: 'assignment', onPress: () => navigation.navigate('Task') },
@@ -14,9 +14,15 @@ const Homepage = ({ route, navigation }) => {
     { title: 'Account', icon: 'person', onPress: () => navigation.navigate('Account', {
       firstName,
       lastName,
-      email: 'user@example.com'
+      email,
+      username
     }) },
-    { title: 'Log Out', icon: 'logout', onPress: () => navigation.navigate('Login') },
+    { title: 'Log Out', icon: 'logout', onPress: () => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Auth' }],
+      });
+    } },
   ];
 
   return (
@@ -30,7 +36,7 @@ const Homepage = ({ route, navigation }) => {
           >
             <MaterialIcons name="menu" size={24} color="#007BFF" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Home</Text>
+          <Text style={styles.headerTitle}>Dashboard</Text>
         </View>
 
         {/* Welcome message */}
@@ -46,29 +52,27 @@ const Homepage = ({ route, navigation }) => {
           visible={menuVisible}
           onRequestClose={() => setMenuVisible(false)}
         >
-          <SafeAreaView style={styles.modalOverlay}>
-            <TouchableOpacity 
-              style={styles.modalOverlay}
-              activeOpacity={1}
-              onPress={() => setMenuVisible(false)}
-            >
-              <View style={styles.menuContainer}>
-                {menuItems.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.menuItem}
-                    onPress={() => {
-                      setMenuVisible(false);
-                      item.onPress();
-                    }}
-                  >
-                    <MaterialIcons name={item.icon} size={24} color="#007BFF" />
-                    <Text style={styles.menuItemText}>{item.title}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </TouchableOpacity>
-          </SafeAreaView>
+          <TouchableOpacity 
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setMenuVisible(false)}
+          >
+            <View style={styles.menuContainer}>
+              {menuItems.map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.menuItem}
+                  onPress={() => {
+                    setMenuVisible(false);
+                    item.onPress();
+                  }}
+                >
+                  <MaterialIcons name={item.icon} size={24} color="#F6C8C8" />
+                  <Text style={styles.menuItemText}>{item.title}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </TouchableOpacity>
         </Modal>
 
         {/* Homepage content can be added here */}
@@ -116,13 +120,13 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
   menuContainer: {
     position: 'absolute',
     top: 0,
     left: 0,
-    backgroundColor: '#F6C8C8',
+    backgroundColor: '#fff',
     width: '70%',
     maxWidth: 300,
     height: '100%',
@@ -135,13 +139,15 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#fff',
+    borderBottomColor: '#F6C8C8',
   },
   menuItemText: {
     marginLeft: 16,

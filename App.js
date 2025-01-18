@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LoginPage from './screens/Login';
-import SignupPage from './screens/Signup';
+import AuthPage from './screens/AuthPage';
 import Homepage from './screens/Homepage';
-import { initDatabase } from './utils/database';
 import Account from './screens/Account';
+import { initDatabase } from './utils/database';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,15 +16,10 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator initialRouteName="Auth">
         <Stack.Screen 
-          name="Login" 
-          component={LoginPage}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen 
-          name="Signup" 
-          component={SignupPage}
+          name="Auth" 
+          component={AuthPage}
           options={{ headerShown: false }}
         />
         <Stack.Screen 
