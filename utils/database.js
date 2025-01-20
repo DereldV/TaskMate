@@ -16,7 +16,23 @@ export const initDatabase = async () => {
 
 export const insertUser = async (firstName, lastName, username, password, email) => {
   try {
+    // First check if user with email or username already exists
     const _db = await db;
+    const existingUser = await _db.getFirstAsync(
+      'SELECT * FROM users WHERE email = ? OR username = ?',
+      [email, username]
+    );
+    
+    if (existingUser) {
+      if (existingUser.email === email) {
+        throw new Error('Email already registered');
+      }
+      if (existingUser.username === username) {
+        throw new Error('Username already taken');
+      }
+    }
+
+    // If no existing user, proceed with insert
     await _db.runAsync(
       'INSERT INTO users (firstName, lastName, username, password, email) VALUES (?, ?, ?, ?, ?)',
       [firstName, lastName, username, password, email]

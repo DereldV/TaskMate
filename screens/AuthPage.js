@@ -49,13 +49,21 @@ const AuthPage = ({ navigation }) => {
               setFirstName('');
               setLastName('');
               setEmail('');
+              setUsername('');
+              setPassword('');
               setIsLogin(true);
             }
           }
         ]
       );
     } catch (error) {
-      Alert.alert('Error', 'Username or email already exists');
+      if (error.message === 'Email already registered') {
+        Alert.alert('Error', 'This email is already registered');
+      } else if (error.message === 'Username already taken') {
+        Alert.alert('Error', 'This username is already taken');
+      } else {
+        Alert.alert('Error', 'Failed to create account. Please try again.');
+      }
     }
   };
 
