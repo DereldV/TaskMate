@@ -3,20 +3,27 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 
+// Main homepage component after user authentication
 const Homepage = ({ route, navigation }) => {
+  // State for dropdown menu visibility
   const [menuVisible, setMenuVisible] = useState(false);
-  const { firstName, lastName, username, email } = route.params;
+  // Extract user data from navigation params
+  const { firstName, lastName, username, email, avatarPath } = route.params;
 
+  // Define menu items and their actions
   const menuItems = [
     { title: 'Task', icon: 'assignment', onPress: () => navigation.navigate('Task') },
     { title: 'Pomodoro Timer', icon: 'timer', onPress: () => navigation.navigate('PomodoroTimer') },
     { title: 'Progress', icon: 'trending-up', onPress: () => navigation.navigate('Progress') },
+    // Navigate to Account with user data
     { title: 'Account', icon: 'person', onPress: () => navigation.navigate('Account', {
       firstName,
       lastName,
       email,
-      username
+      username,
+      avatarPath
     }) },
+    // Logout: Reset navigation stack to Auth screen
     { title: 'Log Out', icon: 'logout', onPress: () => {
       navigation.reset({
         index: 0,
