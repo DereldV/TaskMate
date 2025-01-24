@@ -2,16 +2,19 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, ScrollView } from 'react-native';
 import { findUserByUsername, insertUser } from '../utils/database';
 
+// Component for handling user authentication (login and signup)
 const AuthPage = ({ navigation }) => {
+  // State management for login/signup toggle and form fields
   const [isLogin, setIsLogin] = useState(true);
-  // Login states
+  // Login form states
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  // Additional Signup states
+  // Signup form states
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
 
+  // Handle user login
   const handleLogin = async () => {
     try {
       const user = await findUserByUsername(username);
@@ -20,7 +23,8 @@ const AuthPage = ({ navigation }) => {
           firstName: user.firstName,
           lastName: user.lastName,
           username: user.username,
-          email: user.email
+          email: user.email,
+          avatarPath: user.avatarPath || 'man' // Include default avatar if none set
         });
       } else {
         Alert.alert('Error', 'Invalid username or password');
@@ -30,13 +34,16 @@ const AuthPage = ({ navigation }) => {
     }
   };
 
+  // Handle user signup
   const handleSignup = async () => {
+    // Validate all fields are filled
     if (!firstName || !lastName || !username || !password || !email) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     try {
+      // Attempt to create new user
       await insertUser(firstName, lastName, username, password, email);
       Alert.alert(
         'Success',
@@ -45,7 +52,7 @@ const AuthPage = ({ navigation }) => {
           {
             text: 'OK',
             onPress: () => {
-              // Clear signup fields and switch to login
+              // Clear form and switch to login view on success
               setFirstName('');
               setLastName('');
               setEmail('');
@@ -57,6 +64,7 @@ const AuthPage = ({ navigation }) => {
         ]
       );
     } catch (error) {
+      // Handle specific error cases
       if (error.message === 'Email already registered') {
         Alert.alert('Error', 'This email is already registered');
       } else if (error.message === 'Username already taken') {

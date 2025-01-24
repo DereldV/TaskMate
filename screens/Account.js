@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Switch, Animated, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Switch, Animated, Alert, Modal, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { updateUserProfile } from '../utils/database';
+import { updateUserProfile, updateUserAvatar } from '../utils/database';
 
+// Account management component
 const Account = ({ route, navigation }) => {
-  const { firstName: initialFirstName, lastName: initialLastName, email, username } = route.params;
-  const [selectedMenu, setSelectedMenu] = useState(null);
-  const [firstName, setFirstName] = useState(initialFirstName);
-  const [lastName, setLastName] = useState(initialLastName);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  // Extract user data from navigation params
+  const { firstName: initialFirstName, lastName: initialLastName, email, username, avatarPath: initialAvatarPath } = route.params;
+  
+  // State management
+  const [selectedMenu, setSelectedMenu] = useState(null); // Currently selected menu item
+  const [firstName, setFirstName] = useState(initialFirstName); // Editable first name
+  const [lastName, setLastName] = useState(initialLastName); // Editable last name
+  const [isEditing, setIsEditing] = useState(false); // Profile editing mode
+  const [isMuted, setIsMuted] = useState(false); // Notification settings
+  const [isEditingAvatar, setIsEditingAvatar] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(initialAvatarPath || 'avatar1.png');
 
   // Placeholder data for stats
   const stats = {
@@ -18,13 +24,41 @@ const Account = ({ route, navigation }) => {
     completed: 8
   };
 
+  // Available avatars array
+  const avatars = {
+    'man': require('../assets/Profile_picture_avatars/man.png'),
+    'woman': require('../assets/Profile_picture_avatars/woman.png'),
+    'cat': require('../assets/Profile_picture_avatars/cat.png'),
+    'chicken': require('../assets/Profile_picture_avatars/chicken.png'),
+    'frog': require('../assets/Profile_picture_avatars/frog.png'),
+    'panda': require('../assets/Profile_picture_avatars/panda.png'),
+    'penguin': require('../assets/Profile_picture_avatars/penguin.png'),
+    'rabbit': require('../assets/Profile_picture_avatars/rabbit.png'),
+    'robot': require('../assets/Profile_picture_avatars/robot.png'),
+    'sea_lion': require('../assets/Profile_picture_avatars/sea_lion.png'),
+  };
+
+  // Handle menu item selection and form reset
+  const handleMenuPress = (menuName) => {
+    if (selectedMenu === menuName) {
+      setSelectedMenu(null); // Close if already open
+      if (isEditing) {
+        setIsEditing(false); // Reset editing state
+        setFirstName(initialFirstName); // Reset values
+        setLastName(initialLastName);
+      }
+    } else {
+      setSelectedMenu(menuName); // Open if closed
+    }
+  };
+
+  // Handle profile updates
   const handleSaveProfile = async () => {
     try {
-      console.log('Updating profile for user:', username);
       await updateUserProfile(username, firstName, lastName);
       setIsEditing(false);
       
-      // Update both Account and Homepage displays
+      // Update navigation params and Homepage display
       navigation.setParams({ firstName, lastName });
       navigation.navigate('Homepage', {
         firstName,
@@ -37,21 +71,33 @@ const Account = ({ route, navigation }) => {
     } catch (error) {
       console.error('Profile update error:', error);
       Alert.alert('Error', 'Failed to update profile');
+      // Reset to original values on error
       setFirstName(initialFirstName);
       setLastName(initialLastName);
     }
   };
 
-  const handleMenuPress = (menuName) => {
-    if (selectedMenu === menuName) {
-      setSelectedMenu(null); // Close if already open
-      if (isEditing) {
-        setIsEditing(false); // Reset editing state when closing
-        setFirstName(initialFirstName); // Reset values
-        setLastName(initialLastName);
-      }
-    } else {
-      setSelectedMenu(menuName); // Open if closed
+  // Handle avatar selection
+  const handleAvatarSelect = async (avatar) => {
+    try {
+      console.log('Selecting avatar:', avatar, 'for user:', username);
+      await updateUserAvatar(username, avatar);
+      setSelectedAvatar(avatar);
+      setIsEditingAvatar(false);
+      
+      // Only update the current screen params, don't navigate away
+      navigation.setParams({ 
+        avatarPath: avatar,
+        firstName,
+        lastName,
+        email,
+        username
+      });
+      
+      Alert.alert('Success', 'Profile picture updated successfully');
+    } catch (error) {
+      console.error('Avatar update error:', error);
+      Alert.alert('Error', 'Failed to update profile picture');
     }
   };
 
@@ -120,6 +166,45 @@ const Account = ({ route, navigation }) => {
     </View>
   );
 
+  // Add Avatar Selection Modal
+  const renderAvatarModal = () => (
+    <Modal
+      visible={isEditingAvatar}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={() => setIsEditingAvatar(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.avatarModalContent}>
+          <Text style={styles.modalTitle}>Select Avatar</Text>
+          <ScrollView contentContainerStyle={styles.avatarGrid}>
+            {Object.keys(avatars).map((avatar, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.avatarOption,
+                  selectedAvatar === avatar && styles.selectedAvatarOption
+                ]}
+                onPress={() => handleAvatarSelect(avatar)}
+              >
+                <Image
+                  source={avatars[avatar]}
+                  style={styles.avatarImage}
+                />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setIsEditingAvatar(false)}
+          >
+            <Text style={styles.closeButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+
   const menuItems = [
     { 
       title: 'Profile', 
@@ -159,9 +244,15 @@ const Account = ({ route, navigation }) => {
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
             <Image 
-              source={require('../assets/profile_picture_placeholder.png')}
-              style={styles.profileImage}
+              source={avatars[selectedAvatar]}
+              style={styles.selectedAvatarImage}
             />
+            <TouchableOpacity 
+              style={styles.editAvatarButton}
+              onPress={() => setIsEditingAvatar(true)}
+            >
+              <MaterialIcons name="edit" size={24} color="#F6C8C8" />
+            </TouchableOpacity>
           </View>
           <Text style={styles.userName}>{firstName} {lastName}</Text>
           <Text style={styles.userEmail}>{email}</Text>
@@ -204,6 +295,9 @@ const Account = ({ route, navigation }) => {
             </View>
           ))}
         </View>
+
+        {/* Add Avatar Modal */}
+        {renderAvatarModal()}
       </View>
     </SafeAreaView>
   );
@@ -254,7 +348,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
-  profileImage: {
+  selectedAvatarImage: {
     width: '100%',
     height: '100%',
   },
@@ -379,6 +473,72 @@ const styles = StyleSheet.create({
   },
   selectedMenuItem: {
     backgroundColor: '#f8f8f8',
+  },
+  editAvatarButton: {
+    position: 'absolute',
+    right: -8,
+    bottom: -8,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 8,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarModalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    width: '90%',
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  avatarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    padding: 10,
+  },
+  avatarOption: {
+    margin: 10,
+    borderRadius: 50,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedAvatarOption: {
+    borderColor: '#F6C8C8',
+  },
+  avatarImage: {
+    width: 80,
+    height: 80,
+  },
+  closeButton: {
+    backgroundColor: '#F6C8C8',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 
